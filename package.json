@@ -1,0 +1,12 @@
+{
+    "name": "appweek2-api",
+    "main": "server.js",
+    "dependencies": {
+        "express": "~4.14.0",
+        "body-parser": "~1.15.2",
+        "mocha": "3.0.2"
+    },
+    "devDependencies": {
+        "supertest": "2.0.0"
+    }
+}
