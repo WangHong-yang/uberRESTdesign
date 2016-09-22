@@ -8,3 +8,8 @@
 + [Github Code Repository](https://github.com/WangHong-yang/uberRESTdesign)
 + [Uber REST designed before](http://mr-why.com/post/studyabroad/restful-web-services-uber)
 
+Run server.js:
+`node server.js` and use [Postman](https://www.getpostman.com/) to POST / GET / PATCH / PUT / DELETE
+
+Run Unit Test: 
+`./node_modules/.bin/mocha -u exports test/test.js`
