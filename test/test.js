@@ -10,14 +10,14 @@ app = require("../server.js");
 
 exports.car_should_return_cars = function(done){
 	supertest(app)
-	.get('/api/car')
+	.get('/api/cars')
 	.expect(200)
 	.end(done);
 };
 
 exports.car_should_return_json = function(done){
 	supertest(app)
-	.get('/api/car/1/')
+	.get('/api/cars/1/')
 	.expect(200)
 	.end(function(err,response){
 		console.log(err);
@@ -30,7 +30,7 @@ exports.car_should_return_json = function(done){
 
 exports.car_should_create_car = function(done){
 	supertest(app)
-	.get('/api/car')
+	.get('/api/cars')
 	.send({license: 'new license'})
 	.expect(200)
 	.end(function(err,response){
