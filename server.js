@@ -24,7 +24,9 @@ router.get('/', function(req, res) {
     res.json({ message: 'This is Hubert\'s Uber REST design' });   
 });
 
-// more routes for our API will happen here
+
+// =============================================================================
+// CARS RESTful
 
 var cars = [{
 				id: 1,
@@ -49,7 +51,7 @@ var cars = [{
 			}];
 var carsPropList = {id:"", year:"", maker:"", model:"", doorNum:"", passNum:"", license:"", driverID:"", insurance:""};
 
-router.route('/car')
+router.route('/cars')
 	.get(function(req,res) {
 		res.json(cars);
 	})
@@ -57,7 +59,8 @@ router.route('/car')
 		var reqBody = req.body;
 		var newCar = new Object();
 		for (var prop in carsPropList) {
-			if (prop === "id") {newCar[prop] = cars.length+1;}  // id should not be changed
+            // id should not be changed
+			if (prop === "id") {newCar[prop] = cars.length+1;}  
 			else {newCar[prop] = reqBody[prop];}
 		}
 		cars.push(newCar);
@@ -65,96 +68,337 @@ router.route('/car')
 		console.log(cars);
 	})
 
-router.route('/car/:id/') //route to work with specific car using an ID (for this case POST doesn't make sense)
+router.route('/cars/:id/') //route to work with specific car using an ID (for this case POST doesn't make sense)
+    .get(function(req, res){
+        var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var carObj = cars.filter(function(element) {
+            return element.id == id;
+        })[0];
+        if(carObj === undefined) {
+            console.log("No car ID found!");
+            res.end();
+        } else {
+            res.json(carObj);
+            res.end();
+        }
+    })
+    .patch(function(req, res){
+        var id = req.params.id;        
+        var carObj = cars.filter(function(element) {
+            return element.id == id;
+        })[0];
+        if(carObj === undefined) {
+            console.log("No car ID found!");
+            res.sendStatus(400)
+               .end();
+        } else {
+            var reqBody = req.body;
+            for (var prop in carObj) {
+                // id should not be changed
+                if (prop === "id") {continue;}  
+                // keep undefined prop in req body unchanged
+                if (reqBody[prop] !== undefined) {  
+                    carObj[prop] = reqBody[prop];
+                }
+            }
+            console.log(cars);
+            res.sendStatus(200)
+               .end();
+        }
+    })
+    .put(function(req, res){
+        var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var carObj = cars.filter(function(element) {
+            return element.id == id;
+        })[0];
+        if(carObj === undefined) {
+            console.log("No car ID found!");
+            res.sendStatus(400)
+               .end();
+        } else {
+            var reqBody = req.body;
+            for (var prop in carObj) {
+                // id should not be changed
+                if (prop === "id") {continue;}  
+                else {carObj[prop] = reqBody[prop];}
+            }
+            console.log(cars);
+            res.sendStatus(200)
+               .end();
+        }
+    })
+    .delete(function(req, res){
+    	var id = req.params.id;      
+        var filtered = cars.filter(function(element) {
+            return element.id != id;
+        });
+        cars = filtered
+        console.log(cars);
+        res.sendStatus(200);
+        res.end();
+    })
+
+
+// =============================================================================
+// DRIVER RESTful
+var drivers = [{
+                id: 1,
+                name: "Hubert",
+                email: "hongyang.wang@sv.cmu.edu",
+                phone: "6502658759",
+                carID: 100,
+            }, {
+                id: 2,
+                name: "Hongyang",
+                email: "hongyang.wang@west.cmu.edu",
+                phone: "6502658759",
+                carID: 2,
+            }];
+var driversPropList = {id:"", name:"", email:"", phone:"", carID:""};
+
+router.route('/drivers') //each entity should have specific and generic paths or routes.
+    .get(function(req, res){
+        res.json(drivers);
+    })
+    .post(function(req, res){
+        var reqBody = req.body;
+        var newDriver = new Object();
+        for (var prop in driversPropList) {
+            // id should not be changed
+            if (prop === "id") {newDriver[prop] = drivers.length+1;}  
+            else {newDriver[prop] = reqBody[prop];}
+        }
+        drivers.push(newDriver);
+        res.sendStatus(200);
+        console.log(drivers);
+    });
+
+router.route('/drivers/:id/') //route to work with specific car using an ID (for this case POST doesn't make sense)
     .get(function(req, res){
         var id = req.params.id;  //Read the value of the param defined in the route :id      
         var idFound = false;
-        cars.forEach(function(element) {
+        drivers.forEach(function(element) {
             if (element.id == id) {
-            	idFound = true;
+                idFound = true;
                 res.json(element);
                 res.end();
             }
         })
         // if no corresponding id car found
         if (!idFound) {
-        	console.log("No car ID found!");
-        	res.end();
+            console.log("No driver ID found!");
+            res.end();
         }
     })
     .patch(function(req, res){
         var id = req.params.id;  //Read the value of the param defined in the route :id      
         var idFound = false;
-        cars.forEach(function(element) {
+        drivers.forEach(function(element) {
             if (element.id == id) {
-            	idFound = true;
-            	var reqBody = req.body;
-            	for (var prop in element) {
-            		if (prop === "id") {continue;}  // id should not be changed
-            		if (reqBody[prop] !== undefined) {  // keep undefined prop in req body unchanged
-            			element[prop] = reqBody[prop];
-            		}
-            	}
-                console.log(cars);
+                idFound = true;
+                var reqBody = req.body;
+                for (var prop in element) {
+                    if (prop === "id") {continue;}  // id should not be changed
+                    if (reqBody[prop] !== undefined) {  // keep undefined prop in req body unchanged
+                        element[prop] = reqBody[prop];
+                    }
+                }
+                console.log(drivers);
                 res.sendStatus(200);
                 res.end();
             } 
         })
         // if no corresponding id car found
         if (!idFound) {
-        	console.log("No car ID found!");
-        	res.sendStatus(400);
-        	res.end();
+            console.log("No driver ID found!");
+            res.sendStatus(400);
+            res.end();
         }
     })
     .put(function(req, res){
         var id = req.params.id;  //Read the value of the param defined in the route :id      
         var idFound = false;
-        cars.forEach(function(element) {
+        drivers.forEach(function(element) {
             if (element.id == id) {
-            	idFound = true;
-            	var reqBody = req.body;
-            	for (var prop in element) {
-            		if (prop === "id") {continue;}  // id should not be changed
-            		element[prop] = reqBody[prop];  // update all element prop
-            	}
-                console.log(cars);
+                idFound = true;
+                var reqBody = req.body;
+                for (var prop in element) {
+                    if (prop === "id") {continue;}  // id should not be changed
+                    element[prop] = reqBody[prop];  // update all element prop
+                }
+                console.log(drivers);
                 res.sendStatus(200);
                 res.end();
             }
         })
         // if no corresponding id car found
         if (!idFound) {
-        	console.log("No car ID found!");
-        	res.end();
+            console.log("No driver ID found!");
+            res.end();
         }
     })
     .delete(function(req, res){
-    	var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var id = req.params.id;      
         var idFound = false;
-        for (var i = 0; i < cars.length; i++) {
-        	if (cars[i].id == id) {
-        		idFound = true;
-        		cars.splice(i, 1);
-                console.log(cars);
+        for (var i = 0; i < drivers.length; i++) {
+            if (drivers[i].id == id) {
+                idFound = true;
+                drivers.splice(i, 1);
+                console.log(drivers);
                 res.sendStatus(200);
                 res.end();
-        	}
+            }
         }
         // if no corresponding id car found
         if (!idFound) {
-        	console.log("No car ID found!");
-        	res.end();
+            console.log("No driver ID found!");
+            res.end();
+        }
+    });
+// get drive's car info
+router.route('/drivers/:id/car')
+    .get(function(req, res){
+        var id = req.params.id;
+        var driverObj = drivers.filter(function(element) {
+            return element.id == id;
+        })[0];
+        if (driverObj === undefined) {
+            // driver id not found
+            console.log("No driver ID found!");
+            res.sendStatus(400)
+               .end();
+        } else {
+            // find car object
+            var carObj = cars.filter(function(element) {
+                return element.id == driverObj.carID;
+            })[0];
+            if (carObj === undefined) {
+                // car id not found
+                console.log("No car ID found!");
+                res.sendStatus(400)
+                   .end();
+            } else {
+                // print car Object
+                res.json(carObj)
+                   .end();
+            }
         }
     })
 
-router.route('/driver') //each entity should have specific and generic paths or routes.
+// =============================================================================
+// PASSENGER RESTful
+var passengers = [{
+                id: 1,
+                name: "Hubert",
+                email: "hongyang.wang@sv.cmu.edu",
+                phone: "6502658759"
+            }, {
+                id: 2,
+                name: "Hongyang",
+                email: "hongyang.wang@west.cmu.edu",
+                phone: "6502658759"
+            }];
+var passengersPropList = {id:"", name:"", email:"", phone:""};
+
+router.route('/passengers') //each entity should have specific and generic paths or routes.
     .get(function(req, res){
-        
+        res.json(passengers);
     })
     .post(function(req, res){
-        
+        var reqBody = req.body;
+        var newPassenger = new Object();
+        for (var prop in passengersPropList) {
+            // id should not be changed
+            if (prop === "id") {newPassenger[prop] = passengers.length+1;}  
+            else {newPassenger[prop] = reqBody[prop];}
+        }
+        passengers.push(newPassenger);
+        res.sendStatus(200);
+        console.log(passengers);
     });
+
+router.route('/passengers/:id/') //route to work with specific car using an ID (for this case POST doesn't make sense)
+    .get(function(req, res){
+        var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var idFound = false;
+        passengers.forEach(function(element) {
+            if (element.id == id) {
+                idFound = true;
+                res.json(element);
+                res.end();
+            }
+        })
+        // if no corresponding id car found
+        if (!idFound) {
+            console.log("No passenger ID found!");
+            res.end();
+        }
+    })
+    .patch(function(req, res){
+        var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var idFound = false;
+        passengers.forEach(function(element) {
+            if (element.id == id) {
+                idFound = true;
+                var reqBody = req.body;
+                for (var prop in element) {
+                    if (prop === "id") {continue;}  // id should not be changed
+                    if (reqBody[prop] !== undefined) {  // keep undefined prop in req body unchanged
+                        element[prop] = reqBody[prop];
+                    }
+                }
+                console.log(passengers);
+                res.sendStatus(200);
+                res.end();
+            } 
+        })
+        // if no corresponding id car found
+        if (!idFound) {
+            console.log("No passenger ID found!");
+            res.sendStatus(400);
+            res.end();
+        }
+    })
+    .put(function(req, res){
+        var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var idFound = false;
+        passengers.forEach(function(element) {
+            if (element.id == id) {
+                idFound = true;
+                var reqBody = req.body;
+                for (var prop in element) {
+                    if (prop === "id") {continue;}  // id should not be changed
+                    element[prop] = reqBody[prop];  // update all element prop
+                }
+                console.log(passengers);
+                res.sendStatus(200);
+                res.end();
+            }
+        })
+        // if no corresponding id car found
+        if (!idFound) {
+            console.log("No passenger ID found!");
+            res.end();
+        }
+    })
+    .delete(function(req, res){
+        var id = req.params.id;  //Read the value of the param defined in the route :id      
+        var idFound = false;
+        for (var i = 0; i < passengers.length; i++) {
+            if (passengers[i].id == id) {
+                idFound = true;
+                passengers.splice(i, 1);
+                console.log(passengers);
+                res.sendStatus(200);
+                res.end();
+            }
+        }
+        // if no corresponding id car found
+        if (!idFound) {
+            console.log("No passenger ID found!");
+            res.end();
+        }
+    })
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
